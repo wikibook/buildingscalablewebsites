@@ -1,0 +1,183 @@
+chapter: i18n, L10n, and Unicode
+==================
+
+    printf("Hello %s!", $username);
+
+    
+    
+====================================
+
+    printf(_("Hello %s!"), $username);
+
+    
+    
+====================================
+Example: my_app.fr.po
+msgid "Hello %s!"
+msgstr "Bonjour %s!"
+
+    
+    
+====================================
+Example: my_app.ja.po
+msgid "Hello %s!"
+msgstr "こ
+                     ん
+                     に
+                     さ
+                     け %s!"
+
+    
+    
+====================================
+
+Content-Type: text/html; charset=utf-8
+
+    
+    
+====================================
+
+AddCharset UTF-8 .php
+
+    
+    
+====================================
+
+header("Content-Type: text/html; charset=utf-8");
+
+    
+    
+====================================
+
+<meta http-equiv="Content-Type" content=
+"text/html; charset=UTF-8">
+
+    
+    
+====================================
+
+header("Content-Type: text/xml; charset=utf-8");
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8"?>
+
+    
+    
+====================================
+
+SELECT SUBSTRING(name, 0, 1) FROM UserNames;
+
+    
+    
+====================================
+
+<?php
+ $rows = db_fetch_all("SELECT name FROM UserNames;");
+foreach($rows as $k => $v){
+          $rows[$k]['name'] = mb_substr($v['name'], 0, 1);
+  }
+>
+
+    
+    
+====================================
+
+Content-Type: text/plain; charset=utf-8
+
+    
+    
+====================================
+
+=?utf-8?Q?hello_=E2=98=BA?= 
+=?charset?encoding?encoded-text?=
+         
+    
+    
+====================================
+
+function email_escape($text){
+        $text = preg_replace('/([^a-z ])/ie', 'sprintf("=%02x", ord(StripSlashes("
+       \\1")))', $text);$text = str_replace(' ', '_', $text);
+     return "=?utf-8?Q?$text?=";
+}
+
+    
+    
+====================================
+
+function email_escape($text){
+      if (preg_match('/[^a-z ]/i', $text)){
+          $text = preg_replace('/([^a-z ])/ie', 'sprintf("=%02x",
+       ord(StripSlashes("\\1")))', $text);$text = str_replace(' ', '_', $text);
+         return "=?utf-8?Q?$text?=";
+       }
+       return $text;
+}
+
+    
+    
+====================================
+
+function email_send($to_name, $to_email, $subject, $message, $from_name,
+$from_email){
+     $from_name = email_escape($from_name);
+       $to_name   = email_escape($to_name);
+       $headers  = "To: \"$to_name\" <$to_email>\r\n";
+       $headers .= "From: \"$from_name\" <$from_email>\r\n";
+     $headers .= "Reply-To: $from_email\r\n";
+     $headers .= "Content-Type: text/plain; charset=utf-8";
+       $subject = email_escape($subject);
+       mail($to_email, $subject, $message, $headers);
+}
+
+    
+    
+====================================
+
+function escape_utf8(data) {
+        if (data == '' || data == null){
+               return '';
+        }
+       data = data.toString();
+       var buffer = '';
+       for(var i=0; i<data.length; i++){
+               var c = data.charCodeAt(i);
+               var bs = new Array();
+              if (c > 0x10000){
+                       // 4 bytes
+                       bs[0] = 0xF0 | ((c & 0x1C0000) >>> 18);
+                       bs[1] = 0x80 | ((c & 0x3F000) >>> 12);
+                       bs[2] = 0x80 | ((c & 0xFC0) >>> 6);
+                   bs[3] = 0x80 | (c & 0x3F);
+               }else if (c > 0x800){
+                        // 3 bytes
+                        bs[0] = 0xE0 | ((c & 0xF000) >>> 12);
+                        bs[1] = 0x80 | ((c & 0xFC0) >>> 6);
+                       bs[2] = 0x80 | (c & 0x3F);
+             }else if (c > 0x80){
+                      // 2 bytes
+                       bs[0] = 0xC0 | ((c & 0x7C0) >>> 6);
+                      bs[1] = 0x80 | (c & 0x3F);
+               }else{
+                       // 1 byte
+                    bs[0] = c;
+              }
+             for(var j=0; j<bs.length; j++){
+                      var b = bs[j];
+                       var hex = nibble_to_hex((b & 0xF0) >>> 4) 
+                      + nibble_to_hex(b &0x0F);buffer += '%'+hex;
+              }
+    }
+    return buffer;
+}
+function nibble_to_hex(nibble){
+        var chars = '0123456789ABCDEF';
+        return chars.charAt(nibble);
+}
+
+    
+    
+==================

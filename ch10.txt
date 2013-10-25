@@ -1,0 +1,357 @@
+chapter: Statistics, Monitoring, and Alerting
+==================
+
+LogFormat  "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" combined
+
+    
+    
+====================================
+
+RewriteEngine on
+RewriteCond  %{QUERY_STRING}    req=([^&]+)
+RewriteRule  .*      -    [E=LOG_REQ:%1]
+RewriteCond  %{QUERY_STRING}    ref=([^&]+)
+RewriteRule  .*      -    [E=LOG_REF:%1]
+LogFormat  "%h %l %u %t \"%{LOG_REQ}e\" %>s %b \"%{LOG_REF}e\" \"%{User-agent}i\"" combined
+
+    
+    
+====================================
+
+SpreadDaemon 4308
+CustomLog $www_cluster combined
+
+    
+    
+====================================
+
+/usr/bin/gmetric -tuint32 -nmemcachced_hitratio -v92 -u%
+
+    
+    
+====================================
+
+mysql> SHOW SLAVE STATUS \G
+*************************** 1. row ***************************
+          Master_Host: db1
+          Master_User: repl
+          Master_Port: 3306
+        Connect_retry: 60
+      Master_Log_File: db1-bin.439
+  Read_Master_Log_Pos: 374103193
+       Relay_Log_File: dbslave-relay.125
+        Relay_Log_Pos: 854427197
+Relay_Master_Log_File: db1-bin.437
+     Slave_IO_Running: Yes
+    Slave_SQL_Running: Yes
+      Replicate_do_db:
+  Replicate_ignore_db:
+           Last_errno: 0
+           Last_error:
+         Skip_counter: 0
+  Exec_master_log_pos: 587702364
+      Relay_log_space: 854431912
+1 row in set (0.00 sec)
+
+    
+    
+====================================
+
+if (Master_Log_File == Relay_Master_Log_File){
+        slave_lag = Read_Master_Log_Pos - Exec_master_log_pos
+}else{
+        io_log_number  = extract_number( Master_Log_File )
+        sql_log_number = extract_number( Relay_Master_Log_File )
+
+        part_1 = size_of_log - Exec_master_log_pos
+        part_2 = ((io_log_number - sql_log_number) - 1) * size_of_log
+        part_3 = Read_Master_Log_Pos
+        slave_lag = part_1 + part_2 + part_3;
+}
+
+    
+    
+====================================
+
+mysql> SHOW PROCESSLIST;
++-----+-------------+--------+------+---------+---------+-------------+-------------+
+
+| Id  | User        |  Host  | db   | Command | Time    | State       | Info
+  |
++-----+-------------+--------+------+---------+---------+-------------+-------------+
+
+| 1   | system user |        | NULL | Connect | 2679505 | Waiting     | NULL
+                                                          for master
+  |
+| 2   | system user |        | Main | Connect | 176     | init        | SELECT * FROM
+                                                                        Frobs
+|
+| 568 | www-r  | www78:8739  | Main | Sleep   | 1       |             | NULL
+  |
+| 634 | root   | admin1:9959 | NULL | Query   | 0       | NULL        | SHOW
+                                                                        PROCESSLIST 
+  |
++-----+-------------+--------+------+---------+---------+-------------+-------------+
+
+    
+    
+====================================
+
+<Location /server-status>
+        SetHandler server-status
+        Order deny, allow
+        Deny from all
+        Allow from localhost
+        Allow from 127.0.0.1
+</Location>
+
+    
+    
+====================================
+
+[calh@www12 ~] $ wget -q -O - http://localhost/server-status/?auto
+Total Accesses: 27758509
+Total kBytes: 33038842
+CPULoad: .154843
+Uptime: 1055694
+ReqPerSec: 26.2941
+BytesPerSec: 32047
+BytesPerReq: 1218.79
+BusyWorkers: 59
+IdleWorkers: 28
+Scoreboard: 
+_K__CK_K__CKWKK_._KW_K_W._KW.K_WCKWK_.KKK.KK_KKK_KK_  _CKKK_KK
+KK__KC_  _.K_CK_KK_K_...KCKW.._KKK_KKKK...........G...........
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+............................................................
+....
+
+    
+    
+====================================
+
+[calh@cache7 ~] $ echo -ne "stats\r\n" | nc -i1 localhost 11211  
+STAT pid 16087
+STAT uptime 254160
+STAT time 1131841257
+STAT version 1.1.12
+STAT rusage_user 1636.643192
+STAT rusage_system 6993.000902
+STAT curr_items 434397
+STAT total_items 4127175
+STAT bytes 1318173321
+STAT curr_connections 2
+STAT total_connections 71072406
+STAT connection_structures 11
+STAT cmd_get 58419832
+STAT cmd_set 4127175
+STAT get_hits 53793350
+STAT get_misses 4626482
+STAT bytes_read 16198140932
+STAT bytes_written 259621692783
+STAT limit_maxbytes 2039480320
+END
+
+    
+    
+====================================
+
+[calh@photocache3 ~] $ /usr/sbin/squidclient -p 80 cache_object://localhost/info
+HTTP/1.0 200 OK
+Server: squid/2.5.STABLE10
+Mime-Version: 1.0
+Date: Sun, 13 Nov 2005 00:37:08 GMT
+Content-Type: text/plain
+Expires: Sun, 13 Nov 2005 00:37:08 GMT
+Last-Modified: Sun, 13 Nov 2005 00:37:08 GMT
+X-Cache: MISS from photocache3.flickr
+Proxy-Connection: close
+Squid Object Cache: Version 2.5.STABLE10
+Start Time:     Tue, 27 Sep 2005 20:41:37 GMT
+Current Time:   Sun, 13 Nov 2005 00:37:08 GMT
+Connection information for squid:
+        Number of clients accessing cache:      0
+        Number of HTTP requests received:       882890210
+        Number of ICP messages received:        0
+        Number of ICP messages sent:    0
+        Number of queued ICP replies:   0
+        Request failure ratio:   0.00
+        Average HTTP requests per minute since start:   13281.4
+        Average ICP messages per minute since start:    0.0
+        Select loop called: 1932718142 times, 2.064 ms avg
+Cache information for squid:
+        Request Hit Ratios:     5min: 76.2%, 60min: 75.9%
+        Byte Hit Ratios:        5min: 67.4%, 60min: 65.8%
+        Request Memory Hit Ratios:      5min: 24.1%, 60min: 24.0%
+        Request Disk Hit Ratios:        5min: 46.5%, 60min: 46.7%
+        Storage Swap size:      26112516 KB
+        Storage Mem size:       2097440 KB
+        Mean Object Size:       22.95 KB
+        Requests given to unlinkd:      0
+Median Service Times (seconds)  5 min    60 min:
+        HTTP Requests (All):   0.00091  0.00091
+  
+      Cache Misses:          0.04519  0.04277
+        Cache Hits:            0.00091  0.00091
+        Near Hits:             0.02899  0.02742
+        Not-Modified Replies:  0.00000  0.00000
+        DNS Lookups:           0.00000  0.05078
+        ICP Queries:           0.00000  0.00000
+Resource usage for squid:
+        UP Time:        3988531.381 seconds
+        CPU Time:       1505927.600 seconds
+        CPU Usage:      37.76%
+        CPU Usage, 5 minute avg:        41.74%
+        CPU Usage, 60 minute avg:       41.94%
+        Process Data Segment Size via sbrk(): -1770560 KB
+        Maximum Resident Size: 0 KB
+        Page faults with physical i/o: 4
+Memory usage for squid via mallinfo():
+        Total space in arena:  -1743936 KB
+        Ordinary blocks:       -1782341 KB  74324 blks
+        Small blocks:               0 KB      0 blks
+        Holding blocks:          3624 KB      6 blks
+        Free Small blocks:          0 KB
+        Free Ordinary blocks:   38404 KB
+        Total in use:          -1778717 KB 102%
+        Total free:             38404 KB -1%
+        Total size:            -1740312 KB
+Memory accounted for:
+        Total accounted:       -1871154 KB
+        memPoolAlloc calls: 1454002774
+        memPoolFree calls: 1446468002
+File descriptor usage for squid:
+        Maximum number of file descriptors:   8192
+        Largest file desc currently in use:    278
+        Number of file desc currently in use:  226
+        Files queued for open:                   0
+        Available number of file descriptors: 7966
+        Reserved number of file descriptors:   100
+        Store Disk files open:                  74
+Internal Data Structures:
+        1137797 StoreEntries
+        179617 StoreEntries with MemObjects
+        179530 Hot Object Cache Items
+        1137746 on-disk objects
+
+    
+    
+====================================
+
+[calh@photocache3 ~] $ /usr/sbin/squidclient -p 80 cache_object://localhost/5min
+HTTP/1.0 200 OK
+Server: squid/2.5.STABLE10
+Mime-Version: 1.0
+Date: Sun, 13 Nov 2005 00:40:38 GMT
+Content-Type: text/plain
+Expires: Sun, 13 Nov 2005 00:40:38 GMT
+Last-Modified: Sun, 13 Nov 2005 00:40:38 GMT
+X-Cache: MISS from photocache3.flickr
+Proxy-Connection: close
+sample_start_time = 1131842089.797892 (Sun, 13 Nov 2005 00:34:49 GMT)
+sample_end_time = 1131842389.797965 (Sun, 13 Nov 2005 00:39:49 GMT)
+client_http.requests = 255.293271/sec
+client_http.hits = 193.523286/sec
+client_http.errors = 0.000000/sec
+client_http.kbytes_in = 105.653308/sec
+client_http.kbytes_out = 3143.169235/sec
+client_http.all_median_svc_time = 0.000911 seconds
+client_http.miss_median_svc_time = 0.042766 seconds
+client_http.nm_median_svc_time = 0.000000 seconds
+client_http.nh_median_svc_time = 0.024508 seconds
+client_http.hit_median_svc_time = 0.000911 seconds
+server.all.requests = 64.213318/sec
+server.all.errors = 0.000000/sec
+server.all.kbytes_in = 1018.056419/sec
+server.all.kbytes_out = 34.476658/sec
+server.http.requests = 64.213318/sec
+server.http.errors = 0.000000/sec
+server.http.kbytes_in = 1018.056419/sec
+server.http.kbytes_out = 34.476658/sec
+server.ftp.requests = 0.000000/sec
+server.ftp.errors = 0.000000/sec
+server.ftp.kbytes_in = 0.000000/sec
+server.ftp.kbytes_out = 0.000000/sec
+server.other.requests = 0.000000/sec
+server.other.errors = 0.000000/sec
+server.other.kbytes_in = 0.000000/sec
+server.other.kbytes_out = 0.000000/sec
+icp.pkts_sent = 0.000000/sec
+icp.pkts_recv = 0.000000/sec
+icp.queries_sent = 0.000000/sec
+icp.replies_sent = 0.000000/sec
+icp.queries_recv = 0.000000/sec
+icp.replies_recv = 0.000000/sec
+icp.replies_queued = 0.000000/sec
+icp.query_timeouts = 0.000000/sec
+icp.kbytes_sent = 0.000000/sec
+icp.kbytes_recv = 0.000000/sec
+icp.q_kbytes_sent = 0.000000/sec
+icp.r_kbytes_sent = 0.000000/sec
+icp.q_kbytes_recv = 0.000000/sec
+icp.r_kbytes_recv = 0.000000/sec
+icp.query_median_svc_time = 0.000000 seconds
+icp.reply_median_svc_time = 0.000000 seconds
+dns.median_svc_time = 0.000000 seconds
+unlink.requests = 0.000000/sec
+page_faults = 0.000000/sec
+select_loops = 1847.536217/sec
+select_fds = 1973.626186/sec
+average_select_fd_period = 0.000504/fd
+median_select_fds = 0.000000
+swap.outs = 37.683324/sec
+swap.ins = 217.336614/sec
+swap.files_cleaned = 0.000000/sec
+aborted_requests = 3.343333/sec
+syscalls.polls = 2104.362821/sec
+syscalls.disk.opens = 162.729960/sec
+syscalls.disk.closes = 325.413254/sec
+syscalls.disk.reads = 510.589876/sec
+syscalls.disk.writes = 343.553250/sec
+syscalls.disk.seeks = 0.000000/sec
+syscalls.disk.unlinks = 38.093324/sec
+syscalls.sock.accepts = 497.029879/sec
+syscalls.sock.sockets = 64.213318/sec
+syscalls.sock.connects = 64.213318/sec
+syscalls.sock.binds = 64.213318/sec
+syscalls.sock.closes = 319.246589/sec
+syscalls.sock.reads = 384.199907/sec
+syscalls.sock.writes = 1041.209747/sec
+syscalls.sock.recvfroms = 0.000000/sec
+syscalls.sock.sendtos = 0.000000/sec
+cpu_time = 126.510768 seconds
+wall_time = 300.000073 seconds
+cpu_usage = 42.170246%
+
+    
+    
+====================================
+
+        1137797 StoreEntries
+        179617 StoreEntries with MemObjects
+        Storage Swap size:      26112516 KB
+        Storage Mem size:       2097440 KB
+
+    
+    
+====================================
+
+        Request Memory Hit Ratios:      5min: 24.1%, 60min: 24.0%
+        Request Disk Hit Ratios:        5min: 46.5%, 60min: 46.7%
+
+    
+    
+==================

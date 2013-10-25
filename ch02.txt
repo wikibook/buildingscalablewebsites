@@ -1,0 +1,14 @@
+chapter: Web Application Architecture
+==================
+
+<---------- sanity ----------> OOP
+
+    
+    
+====================================
+
+$result = db_query('my_cluster', 'SELECT * FROM Frobs;')
+
+    
+    
+==================

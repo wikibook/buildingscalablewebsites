@@ -1,0 +1,402 @@
+chapter: Bottlenecks
+==================
+
+top - 22:12:38 up 28 days,  2:02,  1 user,  load average: 7.32, 7.15, 7.26
+Tasks: 358 total,   3 running, 353 sleeping,   0 stopped,   2 zombie
+Cpu(s): 35.3% us, 12.9% sy,  0.2% ni, 21.8% id, 23.5% wa,  0.6% hi,  5.8% si
+Mem:  16359928k total, 16346352k used,    13576k free,    97296k buffers
+Swap:  8387240k total,    80352k used,  8306888k free,  1176420k cached
+
+PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+31206 mysql     16   0 14.2g  14g 2904 S 25.2 90.7   0:04.36 mysqld
+26393 mysql     16   0 14.2g  14g 2904 S 19.8 90.7   0:13.33 mysqld
+24415 mysql     16   0 14.2g  14g 2904 S  7.2 90.7   0:12.61 mysqld
+25839 mysql     15   0 14.2g  14g 2904 S  7.2 90.7   0:13.39 mysqld
+18740 mysql     16   0 14.2g  14g 2904 S  5.4 90.7   0:24.32 mysqld
+30218 mysql     16   0 14.2g  14g 2904 S  5.4 90.7   0:06.52 mysqld
+32277 mysql     16   0 14.2g  14g 2904 S  5.4 90.7   0:01.20 mysqld
+  772 calh      16   0  6408 1124  680 R  5.4  0.0   0:00.04 top
+ 2376 root      16   0  2888 1972  600 R  3.6  0.0   2487:00 rrd-network
+
+    
+    
+====================================
+
+Function Summary Profile (sorted by total execution time)
+-----------------------------------------------------------------------------------
+Total Time Taken  Avg. Time Taken  Number of Calls  Function Name
+-----------------------------------------------------------------------------------
+0.0011480325      0.0011480325     1                *test3
+0.0008310004      0.0004155002     2                *test2
+0.0006590472      0.0001647618     4                *test1
+0.0001198993      0.0000299748     4                rand
+0.0001020202      0.0001020202     1                *my_class::my_method
+0.0000939792      0.0000939792     1                *my_class->my_method
+0.0000349618      0.0000174809     2                explode
+0.0000179582      0.0000044896     4                urldecode
+0.0000168881      0.0000042220     4                nl2br
+0.0000140202      0.0000046734     3                urlencode
+-----------------------------------------------------------------------------------
+Opcode Compiling:                             0.0006710291
+Function Execution:                           0.0028340796
+Ambient Code Execution:                       0.0010519048
+Total Execution:                              0.0038859844
+-----------------------------------------------------------------------------------
+Total Processing:                             0.0045570135
+-----------------------------------------------------------------------------------
+
+    
+    
+====================================
+
+$dh = opendir('./templates/');
+while (($file = readdir($dh)) !== false) {
+        if (preg_match('!\.txt!', $file)){
+                $smarty->fetch($file);
+        }
+}
+closedir($dh);
+
+    
+    
+====================================
+
+$smarty = new Smarty;
+$smarty->compile_check = 0;
+
+    
+    
+====================================
+
+include('library.php');
+
+    
+    
+====================================
+
+?>{contents-of_file}<?php
+
+    
+    
+====================================
+
+[calh@tulip ~] $ iostat -c
+Linux 2.6.9-5.ELsmp (tulip.iamcal.com)  11/05/2005
+avg-cpu:  %user   %nice    %sys %iowait   %idle
+           0.88    0.06    3.06    5.46   90.54
+
+    
+    
+====================================
+
+[calh@db1 ~] $ iostat -c
+Linux 2.6.9-5.ELsmp (db1.flickr)  11/05/2005
+avg-cpu:  %user   %nice    %sys %iowait   %idle
+          35.27    0.17   19.24   43.49   1.83
+
+    
+    
+====================================
+
+[calh@db1 ~] $ iostat -dx
+Linux 2.6.9-5.ELsmp (db1.flickr)  11/05/2005
+Device:    rrqm/s wrqm/s    r/s   w/s  rsec/s  wsec/s  rkB/s  wkB/s
+hdc          0.03   7.72   0.94  2.71   28.12   83.62  14.06  41.81
+cciss/c0d0   0.03 432.37 188.30 78.55 1626.32  547.39 813.16 273.70
+Device:    avgrq-sz avgqu-sz await svctm %util
+hdc           30.57     0.15 40.04  5.07  1.85
+cciss/c0d0     8.15     0.61  2.27  2.75 73.43
+
+    
+    
+====================================
+
+[calh@netmon ~] $ netstat -i
+Kernel Interface table
+Iface    MTU  Met     RX-OK RX-ERR RX-DRP RX-OVR  TX-OK TX-ERR TX-DRP TX-OVR Flg
+eth0     1500   0 4174722041    113     85      0 518666800      0      0      0 BMRU
+lo      16436  0   16794176     0     0      0  16794176     0     0      0 LRU
+
+    
+    
+====================================
+
+[calh@netmon ~] $ netstat -ieth0 -e
+Kernel Interface table
+eth0      Link encap:Ethernet  HWaddr 00:12:3F:20:25:0E
+          inet addr:70.143.213.60  Bcast:70.143.213.255  Mask:255.255.255.0
+          inet6 addr: ff80::200:2fef:ff12:20e0/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:4174769641 errors:113 dropped:85 overruns:0 frame:15
+          TX packets:518697987 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1529648717 (1.4 GiB)  TX bytes:793133912 (756.3 MiB)
+          Base address:0xecc0 Memory:dfde0000-dfe00000
+
+    
+    
+====================================
+
+[calh@netmon ~] $ netstat -s
+Ip:
+    4096506179 total packets received
+    0 forwarded
+    0 incoming packets discarded
+    673357441 incoming packets delivered
+    529958063 requests sent out
+    144 dropped because of missing route
+    82 fragments dropped after timeout
+    2317086 reassemblies required
+    397469 packets reassembled ok
+    203 packet reassembles failed
+    130967 fragments received ok
+...
+
+    
+    
+====================================
+
+                     -= slurm 0.3.3 on petal.iamcal.com =-
+              x
+                  x         x       x
+       x      x   x   x                   x
+       x      x   x   x      x            x
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+                                          xx
+                                          xx
+                                           x
+                                           x
+
+      Active Interface: eth0                    Interface Speed: 125 MB/s
+      Current RX Speed: 9.82 KB/s              Current TX Speed: 21.10 KB/s
+    Graph Top RX Speed: 46.65 KB/s           Graph Top TX Speed: 244.49 KB/s
+  Overall Top RX Speed: 46.65 KB/s         Overall Top TX Speed: 244.49 KB/s
+      Received Packets: 1205721060          Transmitted Packets: 1083353266
+       GBytes Received: 3.392 GB             GBytes Transmitted: 2.698 GB
+   Errors on Receiving: 0                Errors on Transmission: 0
+
+    
+    
+====================================
+
+Mem:  16359928k total, 16346352k used,    13576k free,    97296k buffers
+Swap:  8387240k total,    80352k used,  8306888k free,  1176420k cached
+
+    
+    
+====================================
+
+[calh@db9 ~] $ free -m
+             total       used       free     shared    buffers     cached
+Mem:         15976      15963         13          0        108       2465
+-/+ buffers/cache:      13388       2587
+Swap:         8190        101       8089
+
+    
+    
+====================================
+
+[calh@db7 ~] $ vmstat -S M
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+6  4     73     15    108   2423    2    4  4072  1233    8     2 26  6 32 37
+
+    
+    
+====================================
+
+[calh@db10 /proc] $ ps axl
+F   UID   PID  PPID PRI  NI   VSZ  RSS       STAT TIME COMMAND
+4     0     1     0  16   0  4744  468       S    0:07 init [3]
+1     0     2     1 -100  -     0    0       S    0:01 [migration/0]
+1     0     3     1  34  19     0    0       SN   0:00 [ksoftirqd/0]
+...
+4     0 11058     1  17   0  43988  1088     S     0:00 /bin/sh /usr/bin/mysqld_safe
+4  6899 11090 11058 15   0 13597616 13398132 S    0:11 /usr/sbin/mysqld
+
+    
+    
+====================================
+
+[calh@db14 ~] $ pstree -G
+init---acpid
+     +-agetty
+     +-atd
+     +-crond
+     +-events/0---aio/0
+     |          +-aio/1
+     |          +-kacpid
+     |          +-kblockd/0
+     |          +-kblockd/1
+     |          +-khelper
+     |          +-2*[pdflush]
+     +-events/1---ata/0
+     |          +-ata/1
+...
+     +-mysqld_safe---mysqld---mysqld---17*[mysqld]
+
+    
+    
+====================================
+
+function db_query($sql, $cluster){
+       $query_start = get_microtime_ms();
+       $dbh = db_select_cluster($cluster);
+       $result = mysql_query($sql, $dbh);
+       $query_end = get_microtime_ms();
+       $query_time = $query_end - $query_start;
+       $GLOBALS[debug][db_query_time] += $query_time;
+       $GLOBALS[debug][db_query_count]++;
+       db_debug("QUERY: $cluster - $sql ({$query_time}ms)");
+}
+function db_debug($message){
+        if ($GLOBALS[config][debug_sql]){
+                echo '<div class="debug">'.HtmlSpecialChars($message).'</div>';
+        }
+}
+function get_microtime_ms(){
+        list($usec, $sec) = explode(" ", microtime()); 
+        return round(1000 * ((float)$usec + (float)$sec));
+}
+
+    
+    
+====================================
+
+$GLOBALS[config][debug_sql] = ($_GET[debug_sql] && $GLOBALS[config][is_dev_env]) ? 1 : 0;
+
+    
+    
+====================================
+
+function db_query($sql, $cluster){
+        $sql = "/* ".db_stack_trace()." */ $sql";
+        ...
+}
+function db_stack_trace(){
+        $stack = array();
+        $trace = debug_backtrace();
+        # we first remove any db_* functions, since those are
+        # always at the end of the call chain
+        while (strstr($trace[0]['function'], 'db_')){
+                array_shift($trace);
+        }
+        # next we push each function onto the stack
+        foreach($trace as $t){
+                $stack[] = $t['function'].'()';
+        }
+        # and finally we add the script name
+        $stack[] = $_SERVER[PHP_SELF];
+        $stack = array_reverse($stack)
+
+        # we replace *'s just incase we might escape
+        # out of the SQL comment
+        return str_replace('*', '', implode(' > ', $stack));
+}
+
+    
+    
+====================================
+
+/usr/local/bin/mysqld, Version: 4.0.24-log, started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+050607 15:22:11        1 Connect     www-r@localhost on flickr
+          1 Query       SELECT * FROM Users WHERE id=12
+          1 Query       SELECT name, age FROM Users WHERE group=7
+          1 Query       USE flickr_data
+          1 Query       SELECT (prefs & 43932) != 0 FROM UserPrefs WHERE name=
+'this user'
+          1 Query       UPDATE UserPrefs SET prefs=28402 WHERE id=19
+050607 15:22:12        
+          1 Quit
+
+    
+    
+====================================
+
+SELECT * FROM Frobs WHERE a=1;
+SELECT * FROM Frobs WHERE a=123;
+SELECT * FROM Frobs WHERE a='hello world';
+
+    
+    
+====================================
+
+mysql> EXPLAIN SELECT * FROM Photos WHERE server=3 ORDER BY date_taken ASC;
++--------+------+---------------+------+---------+------+----------+----------------+
+| table  | type | possible_keys | key  | key_len | ref  | rows     | Extra          |
++--------+------+---------------+------+---------+------+----------+----------------+
+| Photos | ALL  | NULL          | NULL | NULL    | NULL | 21454292 | Using where;   |
+|                                                                    Using filesort |
++--------+------+---------------+------+---------+------+----------+----------------+
+
+    
+    
+====================================
+
+mysql> ALTER TABLE Photos ADD INDEX my_index (server, date_taken);
+Query OK, 21454292 rows affected (9726 sec)
+Records: 21454292  Duplicates: 0  Warnings: 0
+mysql> EXPLAIN SELECT * FROM Photos WHERE server=3 ORDER BY date_taken ASC;
++--------+------+---------------+----------+---------+-------+---------+------------+
+| table  | type | possible_keys | key      | key_len | ref   | rows    | Extra      |
++--------+------+---------------+----------+---------+-------+---------+------------+
+| Photos | ref  | my_index      | my_index |       2 | const | 1907294 | Using where|
++--------+------+---------------+----------+---------+-------+---------+------------+
+
+    
+    
+====================================
+
+CREATE TABLE test_table (
+  a tinyint(3) unsigned NOT NULL,
+  b tinyint(3) unsigned NOT NULL,
+  c tinyint(3) unsigned NOT NULL,
+  KEY a (a,b,c)
+);
+
+    
+    
+====================================
+
+Good: SELECT * FROM test_table WHERE a=100 AND b>50;
+Bad:  SELECT * FROM test_table WHERE a<200 AND b>50;
+
+    
+    
+====================================
+
+Good: SELECT * FROM test_table ORDER BY a;
+Bad:  SELECT * FROM test_table ORDER BY b;
+Bad:  SELECT * FROM test_table ORDER BY c;
+Good: SELECT * FROM test_table WHERE a=100 ORDER BY a;
+Good: SELECT * FROM test_table WHERE a=100 ORDER BY b;
+Bad:  SELECT * FROM test_table WHERE a=100 ORDER BY c;
+Good: SELECT * FROM test_table WHERE a>100 ORDER BY a;
+Bad:  SELECT * FROM test_table WHERE a>100 ORDER BY b;
+Bad:  SELECT * FROM test_table WHERE a>100 ORDER BY c;
+Good: SELECT * FROM test_table WHERE a=100 AND b=100 ORDER BY a;
+Good: SELECT * FROM test_table WHERE a=100 AND b=100 ORDER BY b;
+Good: SELECT * FROM test_table WHERE a=100 AND b=100 ORDER BY c;
+Good: SELECT * FROM test_table WHERE a=100 AND b>100 ORDER BY a;
+Good: SELECT * FROM test_table WHERE a=100 AND b>100 ORDER BY b;
+Bad:  SELECT * FROM test_table WHERE a=100 AND b>100 ORDER BY c;
+
+    
+    
+====================================
+
+SELECT r.* FROM Replies AS r, Topics AS t WHERE t.user_id=100 AND r.topic_id=t.id 
+ ORDER BY r.timestamp DESC
+
+    
+    
+====================================
+
+SELECT * FROM Replies WHERE topic_user_id=100 ORDER BY timestamp DESC
+
+    
+    
+==================

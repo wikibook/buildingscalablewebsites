@@ -1,0 +1,87 @@
+chapter: Development Environments
+==================
+Example: Manual merge process
+<<<<<<< library.php
+function my_function($a, $b){
+=======
+function my_function_2($b, $a){
+>>>>>>> 1.3
+
+    
+    
+====================================
+Example: Annotation log
+413 cal      1.77  if (tags_delete_tag($HTTP_GET_VARS[deletetag])){
+414                
+415 cal      1.42      $photo_url = account_photo_url($photo_row);
+416                
+417 asc      1.74      if ($context_ok) {
+418                        $photo_url .= "in/" . $current_context['uid'];
+419                    }
+420
+421 cal      1.42      header("location: $photo_url?removedtag=1");
+422 cal      1.37      exit;
+423 eric     1.88  }
+
+    
+    
+====================================
+Example: config.php
+<?php
+      #
+      # first come global settings
+      #
+      $config['maximum_user_frobs'] = 2;
+      ...
+
+      #
+      # and then dev specific settings
+      #
+      $config['database_hostname'] = 'dev-db';
+?>
+
+    
+    
+====================================
+Example: config_production.php
+<?php
+      #
+      # production specific settings
+      #
+      $config['database_hostname'] = 'prod-db';
+?>
+
+    
+    
+====================================
+Example: merged config.php
+<?php
+      #
+      # first come global settings
+      #
+      $config['maximum_user_frobs'] = 2;
+      ...
+
+      #
+      # and then dev specific settings
+      #
+      $config['database_hostname'] = 'dev-db';
+?>
+<?php
+      #
+      # production specific settings
+      #
+      $config['database_hostname'] = 'prod-db';
+?>
+
+    
+    
+====================================
+Example: flickr.com server deploy status file
+Server: www14
+Deployed: 19:41, 31/8/2005
+CVS Tag: deploy_2005_8_31_19_41
+
+    
+    
+==================

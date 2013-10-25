@@ -1,0 +1,467 @@
+chapter: APIs
+==================
+
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+        <channel>
+                <title>Cal's Photos</title>
+                <link>http://www.flickr.com/photos/bees/</link>
+                <description>A feed of Cal's Photos</description>
+                <pubDate>Mon, 14 Nov 2005 19:22:41 -0800</pubDate>
+                <lastBuildDate>Mon, 14 Nov 2005 19:22:41 -0800</lastBuildDate>
+                <generator>http://www.flickr.com/</generator>
+                <image>
+                        <url>http://static.flickr.com/33/buddyicons/12037949754@N01
+                                .jpg</url>
+                        <title>Cal's Photos</title>
+                        <link>http://www.flickr.com/photos/bees/</link>
+                </image>
+                <item>
+                        <title>Andy in a meeting</title>
+                        <link>http://www.flickr.com/photos/bees/63434898/</link>
+                        <description> ... &html; content here ... </description>
+                        <pubDate>Mon, 14 Nov 2005 19:22:41 -0800</pubDate>
+                        <author>nobody@flickr.com (Cal)</author>
+                        <guid isPermaLink="false">tag:flickr.com,2004:/photo/
+                              63434898</guid>
+                </item>
+                <item> ... </item>
+        </channel>
+</rss>
+
+    
+    
+====================================
+
+<enclosure url="{url}" type="{mime-type}" size="{size}" />
+
+    
+    
+====================================
+
+<item>
+         <title>Cool song by an artist</title>
+         <link>http://www.foo.com/item1.htm</link>
+         <media:group>
+                 <media:content url="http://www.foo.com/song64kbps.mp3" 
+                         fileSize="1000" bitrate="64" type="audio/mpeg" 
+                         isDefault="true" expression="full"/>
+                 <media:content url="http://www.foo.com/song128kbps.mp3" 
+                         fileSize="2000" bitrate="128" type="audio/mpeg" 
+                         expression="full"/>
+                 <media:content url="http://www.foo.com/song256kbps.mp3" 
+                         fileSize="4000" bitrate="256" type="audio/mpeg" 
+                         expression="full"/>
+                 <media:content url="http://www.foo.com/song512kbps.mp3.torrent" 
+                         fileSize="8000" type="application/
+                         x-bittorrent;enclosed=audio/mpeg" 
+                         expression="full"/>
+                 <media:content url="http://www.foo.com/song.wav" 
+                         fileSize="16000" type="audio/x-wav" expression="full"/>
+                 <media:credit role="musician">band member 1</media:credit>
+                 <media:credit role="musician">band member 2</media:credit>
+                 <media:category>music/artist name/album/song</media:category>
+                 <media:rating>nonadult</media:rating>
+         </media:group>
+ </item>
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns="http://purl.org/rss/1.0/"
+>
+  <channel rdf:about="http://www.flickr.com/photos/bees/">
+    <title>Cal's Photos</title>
+    <link>http://www.flickr.com/photos/bees/</link>
+    <description>A feed of Cal's Photos</description>
+    <dc:date>2005-11-14T19:22:41-08:00</dc:date>
+    <admin:generatorAgent rdf:resource="http://www.flickr.com/" />
+    <image rdf:resource="http://static.flickr.com/33/buddyicons/12037949754@N01.
+            jpg" />
+    <items>
+      <rdf:Seq>
+        <rdf:li rdf:resource="http://www.flickr.com/photos/bees/63434898/" />
+        ...
+      </rdf:Seq>
+    </items>
+  </channel>
+  <item rdf:about="http://www.flickr.com/photos/bees/63434898/">
+    <title>Andy in a meeting</title>
+    <link>http://www.flickr.com/photos/bees/63434898/</link>
+    <description> ... content here ... </description>
+    <dc:date>2005-11-14T19:22:41-08:00</dc:date>
+    <dc:creator>Cal (http://www.flickr.com/people/bees/)</dc:creator>
+  </item>
+  <item> ... </item>
+</rdf:RDF>
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Cal's Photos</title>
+  <link rel="self" href="http://www.flickr.com/photos/bees/feed/" />
+  <link rel="alternate" type="text/html" href="http://www.flickr.com/photos/bees/"/>
+  <id>tag:flickr.com,2005:/photos/public/12037949754@N01</id>
+  <icon>http://static.flickr.com/33/buddyicons/12037949754@N01.jpg</icon>
+  <subtitle>A feed of Cal's Photos</subtitle>
+  <updated>2005-11-15T17:24:54Z</updated>
+  <generator uri="http://www.flickr.com/">Flickr</generator>
+  <entry>
+    <title>Andy in a meeting</title>
+    <link rel="alternate" type="text/html" href="http://www.flickr.com/photos/bees/
+            63434898/"/>
+    <id>tag:flickr.com,2005:/photo/63434898</id>
+    <published>2005-11-15T03:22:41Z</published>
+    <updated>2005-11-15T03:22:41Z</updated>
+    <content type="html"> ... content ... </content>
+    <author>
+      <name>Cal</name>
+      <uri>http://www.flickr.com/people/bees/</uri>
+    </author>
+  </entry>
+  <entry> ... </entry>
+</feed>
+
+    
+    
+====================================
+
+<link rel="alternate" type="application/rss+xml"
+        title="My RSS feed" href="{rss-url}" />
+<link rel="alternate" type="application/atom+xml"
+        title="My Atom feed" href="{atom-url}" />
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8"?>
+<opml version="1.0">
+        <head>
+                <title>My feeds</title>
+                <dateModified>Mon, 14 Nov 2005 20:57:17 -0800</dateModified>
+        </head>
+        <body>
+                <outline type="rss" text="My Discussions" title="My Discussions"
+                        xmlUrl="http://www.app.com/cal/discuss.rss" />
+                <outline type="rss" text="My Photos" title="My Photos"
+                        xmlUrl="http://www.app.com/cal/photos.rss" />
+        </body>
+</opml>
+
+    
+    
+====================================
+
+GET /feeds/my-private-data/ HTTP/1.0
+Host: world-of-feeds.com
+Authorization: WSSE profile="cal"
+X-WSSE: UsernameToken Username="cal",
+        Created="2005-11-14T18:40:04-0800",
+        Nonce="bf59559401b2d9e14964823a37836a76",
+        PasswordDigest="WgUU6xmxOsGYqhNun9gJZ//C9ew="
+
+    
+    
+====================================
+
+digest = base64( sha1( nonce . created . password ) )
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<!DOCTYPE wml PUBLIC "-//PHONE.COM//DTD WML 1.1//EN"
+        "http://www.phone.com/dtd/wml11.dtd">
+<wml>
+       <card id="main" title="Home Card">
+               <p mode="wrap">WML is awesome!</p>
+       </card>
+</wml>
+
+    
+    
+====================================
+
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN"
+"http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+
+    
+    
+====================================
+
+header("Content-Type: application/vnd.wap.xhtml+xml; charset=utf-8");
+
+    
+    
+====================================
+
+Accept: application/xhtml+xml; profile="http://www.wapforum.org/xhtml"
+Accept: application/vnd.wap.xhtml+xml
+
+    
+    
+====================================
+
+use Flickr::Person;
+use Flickr::Photoset;
+my $person = Flickr::Person->new($flickr_api_key);
+$person->find({username => 'bees'});
+for my $set($person->photosets){
+ print "Photoset: ".$set->getInfo->{title}."\n";
+}
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodCall>
+        <methodName>my.method.name</methodName>
+        <params>
+                <param> ... </param>
+                <param> ... </param>
+        </params>
+</methodCall>
+
+    
+    
+====================================
+
+<value><int>foo</int></value>
+<value><string>1234</String></value>
+<value>
+       <struct>
+                <member>
+                         <name>element key</name>
+                         ...value...
+                 </member>
+                 <member>
+                          <name>element key</name>
+                          ...value...
+                 </member>
+         </struct>
+ </value>
+ <value>
+        <array>
+               <data>
+                      ...value...
+                      ...value...
+                      ...value...
+              </data>
+      </array>
+</value>
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodResponse>
+        <params>
+                <param>...value...</param>
+        </params>
+</methodResponse>
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodResponse>
+        <fault>
+                 <value>
+                         <struct>
+                                 <member>
+                                         <name>faultCode</name>
+                                         <value><int>{code}</int></value>
+                                 </member>
+                                 <member>
+                                          <name>faultString</name>
+                                          <value><string>{message}</string></value>
+                                 </member>
+                        </struct>
+                 </value>
+          </fault>
+ </methodResponse>
+
+    
+    
+====================================
+
+<s:Envelope
+          xmlns:s="http://www.w3.org/2001/06/soap-envelope"
+          xmlns:xs="http://www.w3.org/1999/XMLSchema"
+          xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+          xmlns:my="http://www.myapp.com/ns/soap-stuff"
+>
+          <s:Header>
+                  <my:Language s:mustUnderstand="0">en_US</my:Language>
+          </s:Header>
+          <s:Body>
+                  <my:ListOfStates>
+                            <my:State xsi:type="xsd:string">California</my:State>
+                            <my:State xsi:type="xsd:string">Florida</my:State>
+                            <my:State xsi:type="xsd:string">Ohio</my:State>
+                </my:ListOfStates>
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+
+<s:Envelope
+        xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:my="http://www.myapp.com/ns/soap-stuff"
+>
+        <s:Body>
+                <s:Fault>
+                         <s:Code>
+                                  <s:Value>s:Sender</s:Value>
+                         </s:Code>
+                         <s:Reason>
+                                  <s:Text>Too many frobs requested</s:Text>
+                        </s:Reason>
+                        <s:Detail>
+                                <my:explain>Too many frobs were requested for the 
+        given widget hamper</my:explain>
+                        </s:Detail>
+                </s:Fault>
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+
+<s:Envelope
+        xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:dc="http://purl.org/dc/elements/1.1/"
+        xmlns:my="http://www.myapp.com/ns/soap-stuff"
+>
+        <s:Body>
+                <s:Fault>
+                        <my:suggestedaction>Run away</my:suggestedaction>
+                        <my:temperate>26 degrees</my:temperate>
+                        <dc:date>2005-11-14T19:22:41-08:00</dc:date>
+               </s:Fault>
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+
+<definitions
+        targetNamespace="http://www.myapp.com/frobs.wsdl"
+        xmlns="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:xs="http://www.w3.org/1999/XMLSchema"
+        xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+        xmlns:tns="http://www.myapp.com/frobs.wsdl"
+>
+        <message name="getFrobRequest">
+                <part name="frobname" xsi:type="xs:string"/>
+        </message>
+        <message name="getFrobResponse">
+                <part name="frobvalue" xsi:type="xs:string"/>
+        </message>
+        <portType name="frobPort">
+                <operation name="getFrob">
+                        <input message="getFrobRequest"/>
+                        <output message="getFrobResponse"/>
+                </operation>
+        </portType>
+        <binding
+                 type="frobPort"
+                 name="frobBinding"
+        >
+                 <soap:binding
+                         style="document"
+                         transport="http://schemas.xmlsoap.org/soap/http"
+                 />
+                 <operation name="getFrob">
+                         <soap:operation
+                                soapAction="http://www.myapp.com/soap/getFrob" />
+                         <input>
+                                 <soap:body use="literal" />
+                         </input>
+                         <output>
+                                 <soap:body use="literal" />
+                         </output>
+                 </operation>
+         </binding>
+     <service name="FrobService">
+             <documentation>My frob service</documentation>
+             <port name="frobPort" binding="tns:frobBinding">
+                       <soap:address location="http://www.myapp.com/soap/frobs"/>
+                </port>
+        </service>
+</definitions>
+
+    
+    
+====================================
+Example: REST example
+<title>hello world</title>
+
+    
+    
+====================================
+Example: XML-RPC example
+<methodResponse>
+  <params>
+    <param>
+      <value>
+        <struct>
+          <member>
+            <name>title</name>
+            <value><string>hello world</string></value>
+          </member>
+        </struct>
+      </value>
+    </param>
+  </params>
+</methodResponse>
+
+    
+    
+====================================
+Example: SOAP example
+<s:Envelope
+        xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:xs="http://www.w3.org/1999/XMLSchema"
+        xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+        xmlns:my="http://www.myapp.com/ns/soap-stuff"
+>
+        <s:Body>
+                <my:title xsi:type="xsd:string">hello world</my:title>
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+Example: Serialized PHP example
+a:1:{s:5:"title";s:11:"hello world";}
+
+    
+    
+====================================
+Example: JSON example
+{"title": "hello world"}
+
+    
+    
+==================

@@ -1,0 +1,322 @@
+chapter: Email
+==================
+
+Laziness, impatience, and hubris.
+                                      --Larry Wall
+
+    
+    
+====================================
+
+bin:   root
+root:  cal
+john:  john@flickr.com
+cal:   cal@iamcal.com
+cron:  /var/log/cron
+
+    
+    
+====================================
+
+uploads: "|/usr/bin/php -q /var/flickr/uploads.php"
+
+    
+    
+====================================
+
+$buffer = '';
+while (!feof(STDIN)) {
+        $buffer .= fgets(STDIN, 4096);
+}
+
+    
+    
+====================================
+
+Content-type: multipart/alternative;
+boundary="8732947.038A7B5C765A86D87EE983"
+
+    
+    
+====================================
+
+--8732947.038A7B5C765A86D87EE983
+Content-type: text/plain
+hello world
+--8732947.038A7B5C765A86D87EE983
+Content-type: text/html
+<b>hello world</b>
+--8732947.038A7B5C765A86D87EE983--
+
+    
+    
+====================================
+
+Content-Type: multipart/mixed; boundary=outer
+        --outer
+        Content-Type: text/plain
+        Content-Disposition: inline
+        Some text goes here
+        --outer
+        Content-Type: multipart/mixed; boundary=inner
+
+                --inner
+                Content-Type: image/jpeg
+                Content-Disposition: attachment
+                <jpeg data>
+               --inner
+               Content-Type: image/jpeg
+               Content-Disposition: attachment
+               <jpeg data>
+               --inner--
+       --outer--
+
+    
+    
+====================================
+
+$decoder = new Mail_mimeDecode($buffer);
+$mail = $decoder->decode(array(
+  'include_bodies'   => 1,
+  'decode_bodies'    => 1,
+  'decode_headers'   => 1,
+));
+
+stdClass Object
+(
+    [headers] => Array ...
+    [ctype_primary] => multipart
+    [ctype_secondary] => mixed
+    [ctype_parameters] => Array
+        (
+            [boundary] => ----=_NextPart_000_7e3_7c0e_65a1
+        )
+
+    [parts] => Array
+        (
+            [0] => stdClass Object ...
+            [1] => stdClass Object ...
+        )
+)
+
+    
+    
+====================================
+
+stdClass Object
+(
+    [headers] => Array ...
+    [ctype_primary] => text
+    [ctype_secondary] => plain
+    [ctype_parameters] => Array
+        (
+            [charset] => utf-8
+        )
+    [body] => hello world
+)
+
+    
+    
+====================================
+
+use MIME::Parser;
+my $parser = new MIME::Parser;
+$parser->decode_headers(1);
+my $mail = $parser->parse(\*STDIN) or die "parse failed\n";
+
+    
+    
+====================================
+
+hello bob,
+here's the file you asked for!
+begin 644 cat.txt
+#0V%T
+`
+end
+
+    
+    
+====================================
+
+$body = preg_replace_callback("!\nbegin ([0-7]{3}) ([^\n]+)\n(.*?)\nend\n!",
+                'extract_uuencoded_body', $body);
+
+    
+    
+====================================
+
+$parser->extract_uuencode(1);
+
+    
+    
+====================================
+
+Content-type: application/ms-tnef;
+        name=winmail.dat
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+        filename=winmail.dat
+CBAAAAYFAOEXzQfBwAAABgMAAOEAAgCwBMEAAgAAAOIAAABcAHAAEAAATmlybWFsYSBBbmlzZXR0
+aSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEIAAgCwBGEBAgAAAMABAAA9AQIA
+AQCcAAIADgAZAAIAAAASAAIAAAATAAIAAACvAQIAAAC8AQIAAAA9ABIAaAE8AFss/CE4AAAAAAAB
+AFgCQAACAAAAjQACAAAAIgACAAAADgACAAEAtwECAAAA2gACAAAAMQAaAMgAAAD/f5ABAAAAAACj
+BQFBAHIAaQBhAGwAMQAaAMgAAAD/f5ABAAAAAACjBQFBAHIAaQBhAGwAMQAaAMgAAAD/f5ABAAAA
+
+    
+    
+====================================
+
+4 byte signature - 0x223e9f78
+2 byte object count
+
+    
+    
+====================================
+
+1 byte object type
+        0x01 - TNEF_LVL_MESSAGE
+        0x02 - TNEF_LVL_ATTACHMENT
+4 byte sub-type
+4 byte data length
+x bytes of data
+2 byte checksum
+
+    
+    
+====================================
+
+0x00069002 - TNEF_ARENDDATA  - marks the start of a new attachment
+0x00018010 - TNEF_AFILENAME  - a filename for the attachment
+0x0006800f - TNEF_ATTACHDATA - the attached file data
+0x00069005 - TNEF_AMAPIATTRS - file attributes
+
+    
+    
+====================================
+
+4 bytes - number of attributes
+2 byte type
+  0x0002 - TNEF_MAPI_SHORT - 2 bytes
+  0x0003 - TNEF_MAPI_INT - 4 bytes
+  0x000b - TNEF_MAPI_BOOLEAN - 4 bytes
+  0x0004 - TNEF_MAPI_FLOAT - 4 bytes
+  0x0005 - TNEF_MAPI_DOUBLE - 8 bytes
+  0x0040 - TNEF_MAPI_SYSTIME - 8 bytes
+  0x001e - TNEF_MAPI_STRING - special
+  0x001f - TNEF_MAPI_UNICODE_STRING - special
+  0x0102 - TNEF_MAPI_BINARY - special
+2 byte name
+x bytes of data
+
+    
+    
+====================================
+
+0x370E - TNEF_MAPI_ATTACH_LONG_FILENAME - better version of the filename
+0x3707 - TNEF_MAPI_ATTACH_MIME_TAG - mime type for the file
+
+    
+    
+====================================
+
+Subject: [PXT from 5555551234]
+
+    
+    
+====================================
+
+Subject: This is an MMS message
+
+    
+    
+====================================
+
+Subject: This message was sent from a T-Mobile wireless phone
+
+    
+    
+====================================
+
+Content-type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: base64
+dGhhbiAxNTEgcHJpbnRzLCB0aGUgb3JkZXIgbXVzdCBiZSBzaGlwcGVkIHZpYSAiUHJpb3JpdHkg
+TWFpbCJBAABWZXJpZnkgdGhhdCAxIHRvIDUwIHByaW50cyB3aWxsIGhhdmUgdGhlIHNoaXBwaW5n
+IHByaWNlIG9mICQxNC45OToAAFZlcmlmeSB0aGF0IHRoZSA1MSB0byAxMDAgcHJpbnRzJyBzaGlw
+cGluZyBwcmljZSBpcyAkMTUuOTk7AABWZXJpZnkgdGhhdCB0aGUgMTAxIHRvIDE1MCBwcmludHMn
+IHNoaXBwaW5nIHByaWNlIGlzICQxNi45OTsAAFZlcmlmeSB0aGF0IHRoZSAxNTEgdG8gMjAwIHBy
+
+    
+    
+====================================
+
+# Some carriers have partnered with the
+# URL scheme 'http://foo.com//shareImage'
+# Careful observers will note the *required*
+# double slashes after the hostname.
+# Maybe somebody should explain the web to them?
+
+    
+    
+====================================
+
+Content-Type: text/plain;charset="utf-8"
+
+    
+    
+====================================
+
+$utf8_text = iconv("ISO-8859-1", "UTF-8", $latin1_text);
+
+    
+    
+====================================
+
+use Encode;
+$utf8_text = encode("utf8", decode("iso-8859-1", $latin1_text));
+
+    
+    
+====================================
+
+Default RFC 822 messages are typed by this protocol as plain text in the 
+US-ASCII character set, which can be explicitly specified as 
+"Content-type: text/plain; charset=us-ascii".
+If no Content-Type is specified, this default is assumed.
+
+    
+    
+====================================
+
+Be liberal in what you accept, and conservative in what you send.
+
+    
+    
+====================================
+
+Received: from localhost (localhost [127.0.0.1])
+        by neuron.kaius.com (Postfix) with ESMTP id F09B0810036
+        for <cal@neuron.kaius.com>; Fri, 30 Sep 2005 01:00:25 +0100 (BST)
+Received: from web54602.mail.yahoo.com (web54602.mail.yahoo.com [206.190.49.172])
+        by neuron.kaius.com (Postfix) with SMTP id 848E881000D
+        for <cal@iamcal.com>; Fri, 30 Sep 2005 01:00:25 +0100 (BST)
+Received: (qmail 51433 invoked by uid 60001); 30 Sep 2005 00:00:25 -0000
+
+    
+    
+====================================
+
+Sorry, we couldn't find any photos attached to your email.
+If you think this is an error, please reply to this email and tell us about it.
+Reference code: 20050929-210346-8473
+
+    
+    
+====================================
+
+ /{YEAR}/{MONTH}/{DAY}/{HOUR}/{USER-IDENTIFER}-{EMAIL-IDENTIFIER}.email 
+
+    
+    
+==================

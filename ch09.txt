@@ -1,0 +1,145 @@
+chapter: Scaling Web Applications
+==================
+
+<?php
+  sleep(1);
+  echo "Hello world!";
+?>
+
+    
+    
+====================================
+
+RewriteEngine  on
+RewriteMap  balance    prg:/var/balance.pl
+RewriteLock  /var/balance.lock
+RewriteRule  ^/(.*)$    ${balance:$1}    [P,L]
+
+    
+    
+====================================
+
+#!/usr/bin/perl -w
+use strict;
+use String::CRC;
+$|++;
+my @servers = qw(cache1 cache2 cache3);
+while (<STDIN>) {
+  my $crc = String::CRC::crc($_, 16);
+  my $server = $servers[$crc % scalar @servers];
+  print "http://$server/$_";
+}
+
+    
+    
+====================================
+
+MX  5  mx1.myapp.com.
+MX  10  mx2.myapp.com.
+MX  15  mx3.myapp.com.
+
+    
+    
+====================================
+
+function db_connect($hosts, $user, $pass){
+  shuffle($hosts);
+
+  foreach($hosts as $host){
+    $dbh = @mysql_connect($host, $user, $pass);
+    if ($dbh){
+      return $dbh;
+    }
+  }
+  return 0;
+}
+
+    
+    
+====================================
+
+mysql> SHOW STORAGE ENGINES;
++------------+---------+------------------------------------------------------------+
+| Engine     | Support | Comment                                                    |
++------------+---------+------------------------------------------------------------+
+| MyISAM     | DEFAULT | Default engine as of MySQL 3.23 with great performance     |
+| MEMORY     | YES     | Hash based, stored in memory, useful for temporary tables  |
+| MERGE      | YES     | Collection of identical MyISAM tables                      |
+| InnoDB     | YES     | Supports transactions, row-level locking, and foreign keys |
+| BDB        | YES     | Supports transactions and page-level locking               |
+| NDBCLUSTER | NO      | Clustered, fault-tolerant, memory-based tables             |
++------------+---------+------------------------------------------------------------+
+6 rows in set (0.00 sec)
+
+    
+    
+====================================
+
+mysql> SHOW TABLE STATUS;
++--------------+--------+---------+------------+------+----------------+------------+
+| Name         | Engine | Version | Row_format | Rows | Avg_row_length | Data_length|
++--------------+--------+---------+------------+------+----------------+------------+
+| columns_priv | MyISAM |       7 | Fixed      |    0 |              0 |          0 |
+| db           | MyISAM |       7 | Fixed      |    2 |            153 |        306 |
+| func         | MyISAM |       7 | Fixed      |    0 |              0 |          0 |
+| host         | MyISAM |       7 | Fixed      |    0 |              0 |          0 |
+| tables_priv  | MyISAM |       7 | Fixed      |    0 |              0 |          0 |
+| user         | MyISAM |       7 | Dynamic    |   10 |             66 |        660 |
++--------------+--------+---------+------------+------+----------------+------------+
+6 rows in set (0.00 sec)
+
+    
+    
+====================================
+
+mysql> CREATE TABLE my_table ( ... ) ENGINE=MyISAM;
+mysql> ALTER TABLE my_table ENGINE=Heap;
+
+    
+    
+====================================
+
+mysql> SELECT * FROM articles WHERE MATCH (title,body)
+    -> AGAINST ('+foo -"bar baz"' IN BOOLEAN MODE);
+
+    
+    
+====================================
+
+mysql> SHOW TABLES;
++-----------------+
+| Tables_in_myapp |
++-----------------+
+| Frobs           |
+| Payments        |
+| Replies         |
+| Topics          |
+| Users           |
+| Widgets         |
++-----------------+
+6 rows in set (0.00 sec)
+
+    
+    
+====================================
+
+Cluster 1: Payments, Users
+Cluster 2: Replies, Topics
+Cluster 3: Frobs
+Cluster 4: Widgets
+
+    
+    
+====================================
+
+PURGE /459837458973.dat HTTP/1.1
+Host: cache.myapp.com
+HTTP/1.0 200 OK
+Server: squid/2.5.STABLE10
+Mime-Version: 1.0
+Date: Fri, 02 Dec 2005 05:20:12 GMT
+Content-Length: 0
+
+    
+    
+==================

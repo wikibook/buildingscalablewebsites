@@ -1,0 +1,390 @@
+chapter: Remote Services
+==================
+
+$sock = fsockopen($ip_address, $port);
+fwrite($sock, "hello world\n");
+$data = fread($sock, 1024);
+fclose($sock);
+
+    
+    
+====================================
+
+  function sock_connect($host, $port, $connection_timeout, $io_timeout){
+          $sock = @fsockopen($host, $port, &$errno, &$errstr, $connection_timeout);
+          if ($sock){
+                  @stream_set_timeout($sock, $io_timeout);
+          }
+          
+          return $sock;
+  }
+
+    
+    
+====================================
+
+  function sock_write($sock, $data, $len){
+          # try and write the data
+          if (@fwrite($sock, $data, $len) === FALSE){
+                  @fclose($sock);
+                  return 0;
+          }
+
+          # check we didn't time out
+          $meta = @stream_get_meta_data($sock);
+          if ($meta[timed_out]){
+                  @fclose($sock);
+                  return 0;
+           }
+           return 1;
+  }
+
+    
+    
+====================================
+
+  function sock_read($sock, $len, $read_block_size){
+        # end of file?
+        if (@feof($sock)){
+          @fclose($sock);
+          return 0;
+        }
+
+        # try and read some data
+        $data = '';
+        $meta = @stream_get_meta_data($sock);
+        while ((strlen($data) < $len) && !@feof($sock) && !$meta[timed_out]){
+          $diff = $len - strlen($data);
+          $rlen = min($diff, $read_block_size);
+          $data .= @fread($sock, $rlen);
+          $meta = @stream_get_meta_data($sock);
+        }
+
+        # check we didn't time out
+        if ($meta[timed_out]){
+          @fclose($sock);
+          return 0;
+        }
+
+        # check the socket didn't close
+        if (@feof($sock)){
+          @fclose($sock);
+          return 0;
+        }
+
+        # check we filled our buffer
+        if (!strlen($data) == $len){
+          @fclose($sock);
+          return 0;
+        }
+        return $data;
+  }
+
+    
+    
+====================================
+
+field-name: field-value
+Keep-Alive: 300
+Last-Modified: Thu, 06 Oct 2005 23:55:19 GMT
+
+    
+    
+====================================
+
+Method Request-URI HTTP-Version
+GET /test.html HTTP/1.0
+POST /foo.php HTTP/1.1
+
+    
+    
+====================================
+
+HTTP-Version Status-Code Reason-Phrase
+HTTP/1.0 404 File not found
+HTTP/1.1 200 OK
+
+    
+    
+====================================
+
+GET /hello.txt HTTP/1.1
+Host: test.com
+User-Agent: Flock/0.4
+
+    
+    
+====================================
+
+HTTP/1.1 200 OK
+Date: Thu, 06 Oct 2005 23:56:01 GMT
+Last-Modified: Thu, 06 Oct 2005 23:55:19 GMT
+Server: Apache/2.0.52
+Connection: close
+Content-Length: 11
+Content-Type: text/plain; charset=UTF-8
+hello world
+
+    
+    
+====================================
+
+ "WWW-Authenticate:" auth-scheme realm ("," auth-param)*
+
+    
+    
+====================================
+
+"Authorization:" "Basic" basic-cookie
+
+    
+    
+====================================
+
+base64( userid ":" password )
+
+    
+    
+====================================
+
+Authorization: Basic Zm9vOmJhcg==
+
+    
+    
+====================================
+
+$request = "GET /hello.txt HTTP/1.1\r\nHost: test.com\r\n\r\n";
+$sock = fsockopen('test.com', 80);
+fwrite($sock, $request);
+$response = '';
+while(!feof($sock)){
+  $response .= fgets($sock);
+}
+fclose($sock);
+
+    
+    
+====================================
+
+include_once("HTTP/Request.php");
+$req =& new HTTP_Request($url, array(
+    'timeout'  => $http_connection_timeout,
+    'readTimeout'  => array($http_io_timeout, 0),
+  ));
+$req->sendRequest();
+$status_code = $req->getResponseCode();
+$headers = $req->getResponseHeader();
+$body = $req->getResponseBody();
+
+    
+    
+====================================
+
+use LWP::UserAgent;
+my $agent = LWP::UserAgent->new;
+$agent->timeout($http_timeout);
+my $request = HTTP::Request->new(GET => $url);
+my $response = $agent->request($request);
+
+my $status_code = $response->code();
+my $headers = $response->headers();
+my $body = $response->decoded_content();
+
+    
+    
+====================================
+
+function db_connect($hosts, $user, $pass){
+        shuffle($hosts);
+        foreach($hosts as $host){
+                debug("Trying to connect to $host...");
+                $dbh = @mysql_connect($host, $user, $pass, 1);
+                if ($dbh){
+                        debug("Connected to $host!");
+                        return $dbh;
+                }
+                debug("Failed to connect to $host!");
+    }
+    debug("Failed to connect to all hosts in list - giving up!");
+        return 0;
+}
+
+    
+    
+====================================
+
+function store_file($storage_hosts, $filename){
+        shuffle($storage_hosts);
+        foreach($storage_hosts as $host){
+                $result = store_file_2($host, $filename);
+                if ($result){ return $result; }
+        }
+        return 0;
+}
+function store_file_2($host, $filename){
+        ...
+        if ($connection_failed){
+                return 0;
+        }
+        ...
+        if ($operation_failed){
+                return 0;
+         }
+         return $result;
+}
+
+    
+    
+====================================
+
+<hello> <world> </hello>
+
+    
+    
+====================================
+
+<hello> <w&#111;rld> </hello>
+<hello> <w&#x6f;rld> </hello>
+
+    
+    
+====================================
+
+<hello><![CDATA[ <world> ]]></hello>
+
+    
+    
+====================================
+
+<hello xmlns:foo="urn:some/other/namespace"><foo:hello> bar</foo:hello></hello>
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<hello> <world> </hello>
+
+    
+    
+====================================
+
+<!DOCTYPE hello [
+  <!ELEMENT hello (#PCDATA)>
+]>
+<hello>world</hello>
+
+    
+    
+====================================
+
+<!DOCTYPE hello [
+  <!ENTITY world "world">
+]>
+<hello>&world;</hello>
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodCall>
+        <methodName>{method name}</methodName>
+        <params>
+                <param>{value}</param>
+                <param>{value}</param>
+                <param>{value}</param>
+        </params>
+</methodCall>
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodResponse>
+        <params>
+                <param>{value}</param>
+                <param>{value}</param>
+                <param>{value}</param>
+        </params>
+</methodResponse>
+
+    
+    
+====================================
+
+<?xml version="1.0"?>
+<methodResponse>
+        <fault>
+                <value>
+                        <struct>
+                                <member>
+                                         <name>faultCode</name>
+                                         <value><int>{code}</int></value>
+                                </member>
+                                 <member>
+                                          <name>faultString</name>
+                                          <value><string>{error}</string></value>
+                                 </member>
+                         </struct>
+                </value>
+        </fault>
+</methodResponse>
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8" ?>
+<s:Envelope
+        xmlns:s="http://www.w3.org/2003/05/soap-envelope"
+        xmlns:xsi="http://www.w3.org/1999/XMLSchema-instance"
+        xmlns:xsd="http://www.w3.org/1999/XMLSchema"
+>
+        <s:Body>
+                 {request/response body}
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+
+<?xml version="1.0" encoding="utf-8" ?>
+<s:Envelope xmlns:s="http://www.w3.org/2003/05/soap-envelope">
+        <s:Body>
+                <s:Fault>
+                        <faultcode>{code}</faultcode>
+                        <faultstring>{message}</faultstring>
+                        <faultactor>{url}</faultactor>
+                        <details>{explanation}</details>
+                </s:Fault>
+        </s:Body>
+</s:Envelope>
+
+    
+    
+====================================
+
+POST /counter/ HTTP/1.0
+Content-Length: 40
+Content-Type: text/xml; charset=UTF-8
+<?xml version="1.0"?>
+<value>20</value>
+HTTP/1.0 200 OK
+Date: Thu, 06 Oct 2005 23:56:01 GMT
+Content-Length: 65
+Content-Type: text/xml; charset=UTF-8
+<?xml version="1.0"?>
+<status>ok</status>
+
+    
+    
+====================================
+
+20
+
+    
+    
+==================
